@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="30a379a3-92ee-4a21-b2c7-e63e17fac9aa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Receiver.java" afterDir="false" />
+    <list default="true" id="25f1aab1-7d2a-4f9e-9764-356d641a8d78" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/ErrorDetails.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/PacketHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ReadMe.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/TestPacketHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/TestRunner.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/TestVoipClassMethods.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/VOIP.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/VoipDataPacket.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/hamcrest-core-1.3.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/junit-4.11.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/VoCe/RecordPlayback.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/VoCe/RecordPlayback.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RecordPlayback.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RecordPlayback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CO324 Assignment - VoCe.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VoCe.iml" beforeDir="false" afterPath="$PROJECT_DIR$/VoCe.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/VoCe/Main.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/VoCe/Receiver.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/VoCe/RecordPlayback.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Receiver.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/RecordPlayback.java" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,27 +31,27 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
-  <component name="ProjectId" id="1PsIWfwmDS3XhABXoc9q3FhNFT0" />
+  <component name="ProjectId" id="1SESzCKpfCT3L7wiUZQorpJU9ts" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="Downloaded.Files.Path.Enabled" value="false" />
+    <property name="Repository.Attach.Annotations" value="false" />
+    <property name="Repository.Attach.JavaDocs" value="false" />
+    <property name="Repository.Attach.Sources" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="http.proxy" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\Engineering\3rd_year\sem_5\CO324 - Network and Web Application Design\Assignments\VoCe\src" />
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Workspaces\Github\VoCe\Code\VoCe\src" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -51,16 +66,9 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Main">
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main" />
-      <module name="VoCe" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="RecordPlayback" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="RecordPlayback" />
+  <component name="RunManager">
+    <configuration name="VOIP" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="VOIP" />
       <module name="VoCe" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -68,8 +76,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Main" />
-        <item itemvalue="Application.RecordPlayback" />
+        <item itemvalue="Application.VOIP" />
       </list>
     </recent_temporary>
   </component>
@@ -78,13 +85,12 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="30a379a3-92ee-4a21-b2c7-e63e17fac9aa" name="Default Changelist" comment="" />
-      <created>1566656410793</created>
+      <changelist id="25f1aab1-7d2a-4f9e-9764-356d641a8d78" name="Default Changelist" comment="" />
+      <created>1571127521791</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1566656410793</updated>
-      <workItem from="1566656418589" duration="2405000" />
-      <workItem from="1567433749783" duration="1255000" />
+      <updated>1571127521791</updated>
+      <workItem from="1571127523226" duration="1018000" />
     </task>
     <servers />
   </component>
