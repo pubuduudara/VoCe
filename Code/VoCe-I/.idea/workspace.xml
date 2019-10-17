@@ -2,13 +2,35 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="30a379a3-92ee-4a21-b2c7-e63e17fac9aa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Receiver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/lib/apiguardian-api-1.0.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/lib/junit-4.12.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/lib/opentest4j-1.1.1.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/ErrorDetails.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/PacketHandler$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/PacketHandler.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/TestPacketHandler.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/TestRunner.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/TestVoipClassMethods.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/VOIP$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/VOIP$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/VOIP$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/VOIP.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VoCe/src/VoipDataPacket.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/VoCe/RecordPlayback.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/VoCe/RecordPlayback.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VoCe.iml" beforeDir="false" afterPath="$PROJECT_DIR$/VoCe.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Receiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Receiver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/RecordPlayback.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RecordPlayback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../VoCe/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../VoCe/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../VoCe/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../VoCe/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../VoCe/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../VoCe/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../VoCe/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../VoCe/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../VoCe/VoCe.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../VoCe/VoCe.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../README.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,7 +46,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
   <component name="ProjectId" id="1PsIWfwmDS3XhABXoc9q3FhNFT0" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -32,7 +54,8 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../VoCe" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -85,6 +108,7 @@
       <updated>1566656410793</updated>
       <workItem from="1566656418589" duration="2405000" />
       <workItem from="1567433749783" duration="1255000" />
+      <workItem from="1571221479405" duration="289000" />
     </task>
     <servers />
   </component>
@@ -96,7 +120,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
