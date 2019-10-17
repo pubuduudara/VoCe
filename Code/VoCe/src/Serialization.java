@@ -1,207 +1,190 @@
-/*
- * CO 324 - Network and Web programming
- * Project I
- * Serialization and Deserialization plus error correction  class
- */
-
-
-
 import java.util.Arrays;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.* ;
+import java.net.*;
 import java.nio.ByteBuffer;
-import java.util.Scanner;
 
 
+public class Serialization {
 
 
-public class Serialization{
-    
-    
-    public static int threshold=32;
-    
-    static int packet_recive=0,packet_reorder=0,packet_sent=0;
-    
-	private int curr_sending=0,curr_playing=-1;
+    static int threshold = 32;
 
-	private byte tempBuffer[][] = new byte[1024][VoCe.packetsize];		
-	
-    static volatile long startTime = (long)System.currentTimeMillis();
+    private static int packet_receive = 0, packet_reorder = 0, packet_sent = 0;
 
-	int played = 0;
-    
-    
+    private int curr_sending = 0, curr_playing = -1;
 
-    
-	public  byte [] serialize(byte [] buff){		//method fro serialization of data; it adds sequence number to the packet
-		 
+    private byte[][] tempBuffer = new byte[1024][VoCe.packet_size];
 
-		byte [] temp = Arrays.copyOf(buff, VoCe.packetsize);
-		ByteBuffer bytebuff = ByteBuffer.allocate(4);
-                    bytebuff.putInt(curr_sending);    
-                    byte [] data = bytebuff.array() ;
-        System.arraycopy(data, 0, temp, VoCe.packetsize-4, 4);
-	    packet_sent++;
-		curr_sending++;
-		return temp;
+    private static volatile long startTime = System.currentTimeMillis();
 
-	}
 
-/*
-	*mwthod for deserialization split the original sound packet and sequence no. then check for errors and if no 
-		error it will add the current packet to the queue.if unrecoverable error happens it will drop the packet
-*/
-	public  void deSerialize(byte []buff){			
+    byte[] serialize(byte[] buff) {        //method fro serialization of data; it adds sequence number to the packet
 
-		int recive_num;
-		packet_recive++;
-		
-		byte [] temp = new byte[4];
-		System.arraycopy(buff, VoCe.packetsize-4, temp, 0, 4);
-		ByteBuffer wrapped = ByteBuffer.wrap(temp);
-        
-        recive_num = wrapped.getInt();
-		if(recive_num>curr_playing){
-			tempBuffer [recive_num%1024] = Arrays.copyOf(buff,buff.length);
-			
-		}
-		else packet_reorder++;
-		if((long)System.currentTimeMillis()>startTime+10000){
-		    System.out.println("Packet Size " + VoCe.packetsize +" Packet Loss " + (packet_sent-packet_recive)+ " Reorderd Packets " +packet_reorder);
-		    startTime = System.currentTimeMillis();
-		    packet_sent=0;
-		    packet_recive=0;
-		    packet_reorder=0;
-		    
-		}
-		
 
-	}
+        byte[] temp = Arrays.copyOf(buff, VoCe.packet_size);
+        ByteBuffer bytebuffer = ByteBuffer.allocate(4);
+        bytebuffer.putInt(curr_sending);
+        byte[] data = bytebuffer.array();
+        System.arraycopy(data, 0, temp, VoCe.packet_size - 4, 4);
+        packet_sent++;
+        curr_sending++;
+        return temp;
 
-	public byte [] getPacket(){		//returns the first packet from the audio packet buffer wich contains the packets recived.
-		
-		byte [] buff = new byte [VoCe.packetsize-4];
-		int i=curr_playing+1;
-		int k=0;
-		//System.out.println("A");
-		while(true){
-			        int counter_buff=0;
-			        for(int j=0;j<1024;j++){
-			            if(tempBuffer[j] != null)counter_buff++;
-			        }     
-			        if(counter_buff>threshold)break;
-			        
-			    
-	    }   
-			    
-    
-		
-		for(int p=0;p<1024;p++){
-		//System.out.println("A");
-		
-			if(tempBuffer[p] != null){
-				
-				//System.out.println("B");
-                int recive_num;
-		
-		        byte [] temp = new byte[4];
-		        System.arraycopy(tempBuffer[p], VoCe.packetsize-4, temp, 0, 4);
-		        ByteBuffer wrapped = ByteBuffer.wrap(temp);
-        
-                recive_num = wrapped.getInt();
-                //System.out.println("IMPORTENT rec_no "+recive_num +"  "+curr_playing);
-                
-                
-                
-                if(recive_num>=curr_playing){
-                curr_playing = recive_num;
-				buff = Arrays.copyOf(tempBuffer[p],tempBuffer[p].length-4);
-				
-				tempBuffer[p] = null;
-				//System.out.println("Recive number HERE = "   +curr_playing + "  " +played_loops );
-				
-				break ;
-				}
-				else{
-				    //System.out.println("else");
-				    tempBuffer[p] = null;
-				
-				}
-			}
-			
-				
-			//System.out.println(played_loops);
-		}
-		
-	
-		return buff;
-	}
+    }
+
+    /*
+        *mwthod for deserialization split the original sound packet and sequence no. then check for errors and if no
+            error it will add the current packet to the queue.if unrecoverable error happens it will drop the packet
+    */
+    void deSerialize(byte[] buff) {
+
+        int receive_num;
+        packet_receive++;
+
+        byte[] temp = new byte[4];
+        System.arraycopy(buff, VoCe.packet_size - 4, temp, 0, 4);
+        ByteBuffer wrapped = ByteBuffer.wrap(temp);
+
+        receive_num = wrapped.getInt();
+        if (receive_num > curr_playing) {
+            tempBuffer[receive_num % 1024] = Arrays.copyOf(buff, buff.length);
+
+        } else packet_reorder++;
+        if ((long) System.currentTimeMillis() > startTime + 10000) {
+            System.out.println("Packet Size " + VoCe.packet_size + " Packet Loss " + (packet_sent - packet_receive) + " Reorderd Packets " + packet_reorder);
+            startTime = System.currentTimeMillis();
+            packet_sent = 0;
+            packet_receive = 0;
+            packet_reorder = 0;
+
+        }
+
+
+    }
+
+    byte[] getPacket() {        //returns the first packet from the audio packet buffer wich contains the packets recived.
+
+        byte[] buff = new byte[VoCe.packet_size - 4];
+        int i = curr_playing + 1;
+        int k = 0;
+        //System.out.println("A");
+        while (true) {
+            int counter_buff = 0;
+            for (int j = 0; j < 1024; j++) {
+                if (tempBuffer[j] != null) counter_buff++;
+            }
+            if (counter_buff > threshold) break;
+
+
+        }
+
+
+        for (int p = 0; p < 1024; p++) {
+            //System.out.println("A");
+
+            if (tempBuffer[p] != null) {
+
+                //System.out.println("B");
+                int receive_num;
+
+                byte[] temp = new byte[4];
+                System.arraycopy(tempBuffer[p], VoCe.packet_size - 4, temp, 0, 4);
+                ByteBuffer wrapped = ByteBuffer.wrap(temp);
+
+                receive_num = wrapped.getInt();
+                //System.out.println("IMPORTANT rec_no "+receive_num +"  "+curr_playing);
+
+
+                if (receive_num >= curr_playing) {
+                    curr_playing = receive_num;
+                    buff = Arrays.copyOf(tempBuffer[p], tempBuffer[p].length - 4);
+
+                    tempBuffer[p] = null;
+                    //System.out.println("Receive number HERE = "   +curr_playing + "  " +played_loops );
+
+                    break;
+                } else {
+                    //System.out.println("else");
+                    tempBuffer[p] = null;
+
+                }
+            }
+
+
+            //System.out.println(played_loops);
+        }
+
+
+        return buff;
+    }
 
 /*
-	main class written for unint test the serialization and deserialization part
+	main class written for unit test the serialization and deserialization part
 */
 
-	public static void main(String args[]){ 
-		Serialization s1 = new Serialization();
+    public static void main(String[] args) {
+        Serialization s1 = new Serialization();
 
-		int serverport = 9876;int clientport = 8765;
-			
-		try{
-		 InetAddress server_address = InetAddress.getByName( "localhost" );
-		 if(args.length==0){
-		 		System.out.println("Running unit testing client for testing Serialization and deSerialization");
-		 		DatagramSocket socket = new DatagramSocket(  ) ;
-		 		try{Thread.sleep(10);
-                }catch(Exception exec){}
-			for(int i=2000;i<2100;i++){
-			    
+        int server_port = 9876;
 
-					ByteBuffer b = ByteBuffer.allocate(4);
-                    b.putInt(i);    
-                    byte [] data = b.array() ;
-
-                    byte [] data_serial = s1.serialize(data);
-				 DatagramPacket packet = new DatagramPacket ( data_serial , data_serial.length , server_address , serverport );
-					System.out.println("sending packet containing int value of" + i);
-					socket.send(packet);
-			}
-		}	
-		else if (args.length==1){
-		try{Thread.sleep(1000);
-                }catch(Exception exec){}
-
-				System.out.println("AD");
-				DatagramSocket socket = new DatagramSocket( serverport ) ;
-				while(true)
-				{
-					System.out.println("reciving packet" );
-					DatagramPacket packet = new DatagramPacket ( new byte[VoCe.packetsize] , VoCe.packetsize );                // Prepare the packet for receive
+        try {
+            InetAddress server_address = InetAddress.getByName("localhost");
+            if (args.length == 0) {
+                System.out.println("Running unit testing client for testing Serialization and deSerialization");
+                DatagramSocket socket = new DatagramSocket();
+                try {
+                    Thread.sleep(10);
+                } catch (Exception ignored) {
+                }
+                for (int i = 2000; i < 2100; i++) {
 
 
-                 socket.receive( packet ) ;
-                 
-                
-                 s1.deSerialize(packet.getData());
-                 byte [] temp = s1.getPacket();
-                 
-                 try{Thread.sleep(100);
-                }catch(Exception exec){}
+                    ByteBuffer b = ByteBuffer.allocate(4);
+                    b.putInt(i);
+                    byte[] data = b.array();
 
-                  ByteBuffer wrapped = ByteBuffer.wrap(temp);
-            	int a = wrapped.getInt();
-            	
-                 System.out.println("Packet Contains : "+a);
-				}		
-		}
-	}catch(Exception ex){
-		System.out.println(ex);
-	};
+                    byte[] data_serial = s1.serialize(data);
+                    DatagramPacket packet = new DatagramPacket(data_serial, data_serial.length, server_address, server_port);
+                    System.out.println("sending packet containing int value of" + i);
+                    socket.send(packet);
+                }
+            } else if (args.length == 1) {
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception ignored) {
+                }
 
-	}
+                System.out.println("AD");
+                DatagramSocket socket = new DatagramSocket(server_port);
+                while (true) {
+                    System.out.println("reciving packet");
+                    DatagramPacket packet = new DatagramPacket(new byte[VoCe.packet_size], VoCe.packet_size);                // Prepare the packet for receive
+
+
+                    socket.receive(packet);
+
+
+                    s1.deSerialize(packet.getData());
+                    byte[] temp = s1.getPacket();
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        break;
+                    }
+
+                    ByteBuffer wrapped = ByteBuffer.wrap(temp);
+                    int a = wrapped.getInt();
+
+                    System.out.println("Packet Contains : " + a);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ;
+
+    }
 
 }
 
