@@ -11,7 +11,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
 
-class Audio {
+class RecordPlayback {
 
     private TargetDataLine targetDataLine;
     private SourceDataLine sourceDataLine;
@@ -25,7 +25,7 @@ class Audio {
         return new AudioFormat(sampleRate, sampleSizeInBits, channels, true, true);
     }
 
-    Audio() {
+    RecordPlayback() {
         try {
             Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();    //get available mixers
             System.out.println("Available mixers:");

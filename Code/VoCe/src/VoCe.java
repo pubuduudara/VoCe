@@ -18,7 +18,7 @@ public class VoCe extends Thread {
     private static DatagramSocket socket_uplink = null;
     private static DatagramSocket socket_downlink = null;
     private static MulticastSocket socket_multicast = null;
-    private static Audio audio = new Audio();
+    private static RecordPlayback audio = new RecordPlayback();
     private static Serialization serial = new Serialization();
 
 
