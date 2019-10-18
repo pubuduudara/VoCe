@@ -16,7 +16,7 @@ class RecordPlayback {
 
     private TargetDataLine targetDataLine;
     private SourceDataLine sourceDataLine;
-    private byte[] tempBuffer = new byte[VoCe.packet_size - 4];
+    private byte[] tempBuffer = new byte[VoCe.packetSize - 4];
 
 
     private AudioFormat getAudioFormat() {
@@ -31,7 +31,7 @@ class RecordPlayback {
 
             Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();    //get available mixers
             System.out.println("Available mixers:");
-            System.out.println(Arrays.toString(mixerInfo));
+            //System.out.println(Arrays.toString(mixerInfo));
             Mixer mixer = null;
             for (int cnt = 0; cnt < mixerInfo.length; cnt++) {
                 System.out.println(cnt + " " + mixerInfo[cnt].getName());
