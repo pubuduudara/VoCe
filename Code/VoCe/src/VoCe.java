@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
@@ -32,21 +34,21 @@ public class VoCe extends Thread {
 
         int choice = sc.nextInt();
 
-        if(choice == 1){ //Private call
+        if (choice == 1) { //Private call
             System.out.println("1)Initiate call\n2)Call someone\n");
             choice = sc.nextInt();
-            if(choice ==1){ //Initiate
+            if (choice == 1) { //Initiate
                 mode = 1;
-            }else if(choice == 2){ // Call someone
+            } else if (choice == 2) { // Call someone
                 System.out.println("Enter peer's IP address: ");
                 server_address = InetAddress.getByName(sc.next());
                 mode = 2;
             }
-        }else if(choice == 2){ // Group call
+        } else if (choice == 2) { // Group call
             System.out.println("Enter group's multicast IP address: ");
             server_address = InetAddress.getByName(sc.next());
             mode = 3;
-        }else{
+        } else {
             System.out.println("\nInvalid input");
         }
 
@@ -61,6 +63,21 @@ public class VoCe extends Thread {
 
                 // Wait for a response from the server
                 System.out.println("Waiting for peer...");
+
+                //Getting my IP Address
+                InetAddress localHost = InetAddress.getLocalHost();
+                String myIPAddress = "";
+                try{
+                    URL urlName = new URL("http://bot.whatismyipaddress.com");
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlName.openStream()));
+
+                    myIPAddress = bufferedReader.readLine().trim();
+                }catch (Exception e){
+                    myIPAddress = "Can't retrieve my IP address. Please find it using ifconfig";
+                }
+
+                System.out.println("Your IP: " + myIPAddress);
+
                 downlinkSocket.receive(packet);
                 System.out.println("Incoming call... Press Enter to answer");
                 while (true) {
@@ -144,9 +161,8 @@ public class VoCe extends Thread {
 
     }
 
-
     public void run() {
-        if (state == 2) {
+        if (state == 2) { //recording and sending
             while (true) {
 
                 byte[] data = recordPlayback.captureAudio();
@@ -165,13 +181,14 @@ public class VoCe extends Thread {
 
 
             }
-        } else if (state == 1) {
+        } else if (state == 1) { //receiving
             while (true) {
                 try {
-                    DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);       // Prepare the packet for receive
+                    // Prepare the packet for receive
+                    DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
                     // Wait for a response from the other peer
 
-                    if (mode == 3) {
+                    if (mode == 3) { //multicast
                         multicastSocket.receive(packet);
                     } else {
                         downlinkSocket.receive(packet);
@@ -187,7 +204,7 @@ public class VoCe extends Thread {
 
             }
 
-        } else if (state == 3) {
+        } else if (state == 3) { //playback
 
 
             while (true) {

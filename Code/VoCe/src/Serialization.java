@@ -45,7 +45,7 @@ public class Serialization {
         } else packet_reorder++;
 
         if (System.currentTimeMillis() > startTime + 10000) {
-            System.out.println("Packet Size " + VoCe.packetSize + " Packet Loss " + (no_pkt_sent - no_pkt_recv) + " Reordered Packets " + packet_reorder);
+            System.out.println(" Losses " + (no_pkt_sent - no_pkt_recv) + " Not in order packets " + packet_reorder);
             startTime = System.currentTimeMillis();
             no_pkt_sent = 0;
             no_pkt_recv = 0;
@@ -72,7 +72,6 @@ public class Serialization {
 
 
         }
-
 
         for (int p = 0; p < 1024; p++) {
             //System.out.println("A");
