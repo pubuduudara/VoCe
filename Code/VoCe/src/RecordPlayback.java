@@ -1,5 +1,6 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -27,8 +28,10 @@ class RecordPlayback {
 
     RecordPlayback() {
         try {
+
             Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();    //get available mixers
             System.out.println("Available mixers:");
+            System.out.println(Arrays.toString(mixerInfo));
             Mixer mixer = null;
             for (int cnt = 0; cnt < mixerInfo.length; cnt++) {
                 System.out.println(cnt + " " + mixerInfo[cnt].getName());
