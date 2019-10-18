@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -6,11 +5,9 @@ import java.util.Scanner;
 
 public class VoCe extends Thread {
 
-    private static int Mode = -1; //Normal Mode as 1st peer is Mode=1 , Normal Mode as 2st client is Mode=2, Multicast is Mode=3
+    private static int mode = -1; // 1: 1st peer, 2: 2nd peer, 3: Multicast
     static int packet_size = 64;
-
-    /*State =1 is for receiving loop state = 2 for recording and sending packet loop State = 3 for playback loop*/
-    private int state = 0;
+    private int state = 0; //1: receiving , 2: recording and sending, 3: playback
 
     private static InetAddress server_address = null;
     private static InetAddress client_address = null;
@@ -18,29 +15,25 @@ public class VoCe extends Thread {
     private static DatagramSocket socket_uplink = null;
     private static DatagramSocket socket_downlink = null;
     private static MulticastSocket socket_multicast = null;
-    private static RecordPlayback audio = new RecordPlayback();
+    private static RecordPlayback recordPlayback = new RecordPlayback();
     private static Serialization serial = new Serialization();
 
 
     private VoCe(int state) throws IOException {
-
         this.state = state;
-
     }
 
     public static void main(String[] args) throws IOException {
-
+        recordPlayback = new RecordPlayback();
         System.out.println("Threshold " + Serialization.threshold);
 
-
-        if (args.length == 1) {
-            Mode = 2;
+        if (args.length == 0) {
+            mode = 1;
+        } else if (args.length == 1) {
+            mode = 2;
             server_address = InetAddress.getByName(args[0]);
-
-        } else if (args.length == 0) {
-            Mode = 1;
         } else if (args.length == 2 && args[1].equalsIgnoreCase("-Multicast")) {
-            Mode = 3;
+            mode = 3;
             server_address = InetAddress.getByName(args[0]);
         } else {
             System.out.println("usage: java Client host or java Server");
@@ -50,12 +43,12 @@ public class VoCe extends Thread {
 
         int server_port = 12000;
         int downlink_port = -1;
-        if (Mode == 1) {    //application run as Server
+        if (mode == 1) {    //application run as Server
 
             try {
 
                 socket_downlink = new DatagramSocket(server_port);
-                DatagramPacket packet = new DatagramPacket(new byte[packet_size], packet_size);                // Prepare the packet for receive
+                DatagramPacket packet = new DatagramPacket(new byte[packet_size], packet_size); // Prepare the packet for receive
 
                 // Wait for a response from the server
                 System.out.println("Waiting for a call...... ");
@@ -63,7 +56,7 @@ public class VoCe extends Thread {
                 System.out.println("Incomming call.... Press Eneter key to answer");
 
 
-                // Asking user to answer the call 
+                // Asking user to answer the call
                 Scanner scanner = new Scanner(System.in);
                 while (true) {
                     String readString = scanner.nextLine();
@@ -89,7 +82,7 @@ public class VoCe extends Thread {
                 e.printStackTrace();
             }
 
-        } else if (Mode == 2) {   //application run as client
+        } else if (mode == 2) {   //application run as client
 
 
             try {
@@ -121,8 +114,7 @@ public class VoCe extends Thread {
                 e.printStackTrace();
             }
 
-        } else if (Mode == 3) {
-
+        } else if (mode == 3) {
 
             socket_uplink = new DatagramSocket();
             client_address = server_address;
@@ -138,9 +130,9 @@ public class VoCe extends Thread {
 
         }
 
-        Thread transmission = new Thread(new VoCe(1)); //new thread started for transmission
-        Thread receive = new Thread(new VoCe(2));        //new thread started for receive packets
-        Thread play = new Thread(new VoCe(3));            //new thread started for playback
+        Thread transmission = new Thread(new VoCe(1)); //transmission thread
+        Thread receive = new Thread(new VoCe(2));      //thread reception thread
+        Thread play = new Thread(new VoCe(3));         //thread playback thread
 
         transmission.start();
         receive.start();
@@ -154,7 +146,7 @@ public class VoCe extends Thread {
         if (state == 2) {
             while (true) {
 
-                byte[] data = audio.captureAudio();
+                byte[] data = recordPlayback.captureAudio();
                 byte[] temp_data = serial.serialize(data);    //serialize the packet of audio to send the otherside whith sequence no.
 
                 try {
@@ -176,7 +168,7 @@ public class VoCe extends Thread {
                     DatagramPacket packet = new DatagramPacket(new byte[packet_size], packet_size);       // Prepare the packet for receive
                     // Wait for a response from the other peer
 
-                    if (Mode == 3) {
+                    if (mode == 3) {
                         socket_multicast.receive(packet);
                     } else {
                         socket_downlink.receive(packet);
@@ -198,7 +190,7 @@ public class VoCe extends Thread {
             while (true) {
 
                 byte[] temp = serial.getPacket();
-                audio.playAudio(temp);
+                recordPlayback.playAudio(temp);
 
 
             }
