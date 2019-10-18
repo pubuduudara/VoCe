@@ -50,9 +50,9 @@ public class VoCe extends Thread {
             System.out.println("\nInvalid input");
         }
 
-        int server_port = 12000;
+        int server_port = 12121;
 
-        if (mode == 1) {    //2nd peer
+        if (mode == 1) {    //1st peer
 
             try {
 
@@ -85,7 +85,7 @@ public class VoCe extends Thread {
                 e.printStackTrace();
             }
 
-        } else if (mode == 2) {   //1st peer
+        } else if (mode == 2) {   //2nd peer
 
 
             try {

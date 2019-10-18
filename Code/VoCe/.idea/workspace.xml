@@ -3,14 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="75e9e28f-e417-4aa4-94d5-d1758a3bc525" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/VoCe/RecordPlayback.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/VoCe/RecordPlayback.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/VoCe/Serialization.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/VoCe/Serialization.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/VoCe/VoCe.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/VoCe/VoCe.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RecordPlayback.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/RecordPlayback.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RecordPlayback.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RecordPlayback.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Serialization.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/Serialization.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Serialization.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Serialization.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/VoCe.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/VoCe.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/VoCe.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/VoCe.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -95,7 +87,7 @@
       <workItem from="1571316416660" duration="1582000" />
       <workItem from="1571320206488" duration="2475000" />
       <workItem from="1571374981962" duration="276000" />
-      <workItem from="1571375436979" duration="3518000" />
+      <workItem from="1571375436979" duration="3691000" />
     </task>
     <servers />
   </component>
