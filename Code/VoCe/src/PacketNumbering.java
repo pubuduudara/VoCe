@@ -3,27 +3,26 @@ import java.net.*;
 import java.nio.ByteBuffer;
 
 
-public class Serialization {
+public class PacketNumbering {
 
 
-    static int threshold = 32;
-
+    private static int packetSize = 64;
     private static int no_pkt_recv = 0, packet_reorder = 0, no_pkt_sent = 0;
 
     private int send_i = 0, play_i = -1;
 
-    private byte[][] tempBuffer = new byte[1024][VoCe.packetSize];
+    private byte[][] tempBuffer = new byte[1024][packetSize];
 
     private static volatile long startTime = System.currentTimeMillis();
 
     //append sequence a number to the packet
     byte[] serialize(byte[] packet) {
 
-        byte[] copy_packet = Arrays.copyOf(packet, VoCe.packetSize);
+        byte[] copy_packet = Arrays.copyOf(packet, packetSize);
         ByteBuffer bytebuffer = ByteBuffer.allocate(4);
         bytebuffer.putInt(send_i);
         byte[] data = bytebuffer.array();
-        System.arraycopy(data, 0, copy_packet, VoCe.packetSize - 4, 4);
+        System.arraycopy(data, 0, copy_packet, packetSize - 4, 4);
         no_pkt_sent++;
         send_i++;
         return copy_packet;
@@ -37,7 +36,7 @@ public class Serialization {
         no_pkt_recv++;
 
         byte[] temp = new byte[4];
-        System.arraycopy(packet, VoCe.packetSize - 4, temp, 0, 4);
+        System.arraycopy(packet, packetSize - 4, temp, 0, 4);
         int seq_num = ByteBuffer.wrap(temp).getInt();
 
         if (seq_num > play_i) {
@@ -59,7 +58,7 @@ public class Serialization {
     //returns the first packet from the audio packet buffer which contains the packets received.
     byte[] getPacket() {
 
-        byte[] buff = new byte[VoCe.packetSize - 4];
+        byte[] buff = new byte[packetSize - 4];
         int i = play_i + 1;
         int k = 0;
         //System.out.println("A");
@@ -68,6 +67,7 @@ public class Serialization {
             for (int j = 0; j < 1024; j++) {
                 if (tempBuffer[j] != null) counter_buff++;
             }
+            int threshold = 32;
             if (counter_buff > threshold) break;
 
 
@@ -82,7 +82,7 @@ public class Serialization {
                 int receive_num;
 
                 byte[] temp = new byte[4];
-                System.arraycopy(tempBuffer[p], VoCe.packetSize - 4, temp, 0, 4);
+                System.arraycopy(tempBuffer[p], packetSize - 4, temp, 0, 4);
                 ByteBuffer wrapped = ByteBuffer.wrap(temp);
 
                 receive_num = wrapped.getInt();
@@ -117,7 +117,7 @@ public class Serialization {
 */
 
     public static void main(String[] args) {
-        Serialization s1 = new Serialization();
+        PacketNumbering s1 = new PacketNumbering();
 
         int server_port = 9876;
 
@@ -152,7 +152,7 @@ public class Serialization {
                 DatagramSocket socket = new DatagramSocket(server_port);
                 while (true) {
                     System.out.println("receiving packet");
-                    DatagramPacket packet = new DatagramPacket(new byte[VoCe.packetSize], VoCe.packetSize);                // Prepare the packet for receive
+                    DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);                // Prepare the packet for receive
 
 
                     socket.receive(packet);

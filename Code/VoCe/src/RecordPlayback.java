@@ -13,10 +13,10 @@ import javax.sound.sampled.TargetDataLine;
 
 
 class RecordPlayback {
-
+    private int packetSize = 64;
     private TargetDataLine targetDataLine;
     private SourceDataLine sourceDataLine;
-    private byte[] tempBuffer = new byte[VoCe.packetSize - 4];
+    private byte[] tempBuffer = new byte[packetSize - 4];
 
 
     private AudioFormat getAudioFormat() {
