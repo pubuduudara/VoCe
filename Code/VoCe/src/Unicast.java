@@ -163,7 +163,6 @@ public class Unicast extends Thread {
                 } catch (Exception e) {
                     System.out.println("Receiving error");
                     e.printStackTrace();
-                    break;
                 }
 
             }
@@ -180,7 +179,7 @@ public class Unicast extends Thread {
                 } catch (Exception e) {
                     System.out.println("sending error");
                     e.printStackTrace();
-                    break;
+
                 }
 
 
