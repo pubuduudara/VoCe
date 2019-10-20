@@ -4,18 +4,17 @@ import java.util.Scanner;
 
 public class Multicast extends Thread {
 
-    enum STATUS {RECV, REC_SEND, PLAY}
+    enum STATE {RECV, REC_SEND, PLAY}
 
-    private STATUS state;
+    private STATE state;
 
-    private static InetAddress clientAddress = null;
+    private static InetAddress multicastAddress = null;
     private static int clientPort = -1;
-    private static DatagramSocket uplinkSocket = null;
     private static MulticastSocket multicastSocket = null;
     private static RecordPlayback recordPlayback = new RecordPlayback();
-    private static PacketNumbering serial = new PacketNumbering();
+    private static PacketNumbering packetNumbering = new PacketNumbering();
 
-    private Multicast(STATUS state) {
+    private Multicast(STATE state) {
         this.state = state;
     }
 
@@ -23,27 +22,33 @@ public class Multicast extends Thread {
         recordPlayback = new RecordPlayback();
         //System.out.println("Threshold " + Serialization.threshold);
 
-        Scanner sc = new Scanner(System.in);
+        String usage = "usage:  $java Multicast <Multicast IP address>\n";
+        if (args.length == 1) {
+            try {
+                multicastAddress = InetAddress.getByName(args[0]);
+            } catch (Exception e) {
+                System.out.println("Invalid IP address\n" + usage);
+            }
 
-        System.out.println("Enter group's multicast IP address: ");
-        InetAddress server_address = InetAddress.getByName(sc.next());
+        } else {
+            System.out.println("Invalid format\n" + usage);
+        }
 
-        uplinkSocket = new DatagramSocket();
-        clientAddress = server_address;
         clientPort = 8888;
+
         try {
             //Prepare to join multicast group
             multicastSocket = new MulticastSocket(8888);
-            multicastSocket.joinGroup(server_address);
+            multicastSocket.joinGroup(multicastAddress);
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(-1);
         }
 
-
-        Thread recv = new Thread(new Multicast(STATUS.RECV));
-        Thread rec_send = new Thread(new Multicast(STATUS.REC_SEND));
-        Thread play = new Thread(new Multicast(STATUS.PLAY));
+        Thread recv = new Thread(new Multicast(STATE.RECV));
+        Thread rec_send = new Thread(new Multicast(STATE.REC_SEND));
+        Thread play = new Thread(new Multicast(STATE.PLAY));
 
         recv.start();
         rec_send.start();
@@ -53,7 +58,7 @@ public class Multicast extends Thread {
     }
 
     public void run() {
-        if (state == STATUS.RECV) { //receiving
+        if (state == STATE.RECV) { //receiving
             while (true) {
                 try {
                     // Prepare the packet for receive
@@ -61,7 +66,7 @@ public class Multicast extends Thread {
                     DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
                     // Wait for a response from the other peer
                     multicastSocket.receive(packet);
-                    serial.removeNumber(packet.getData());
+                    packetNumbering.removeNumber(packet.getData());
 
                 } catch (Exception e) {
                     System.out.println("Receiving error");
@@ -71,17 +76,17 @@ public class Multicast extends Thread {
 
             }
 
-        } else if (state == STATUS.REC_SEND) {
+        } else if (state == STATE.REC_SEND) {
             while (true) {
 
                 byte[] data = recordPlayback.captureAudio();
-                byte[] temp_data = serial.addNumbers(data);
+                byte[] temp_data = packetNumbering.addNumbers(data);
 
                 try {
 
-                    DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, clientAddress, clientPort);
+                    DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, multicastAddress, clientPort);
 
-                    uplinkSocket.send(packet);
+                    multicastSocket.send(packet);
                 } catch (Exception e) {
                     System.out.println("sending error");
                     e.printStackTrace();
@@ -90,11 +95,11 @@ public class Multicast extends Thread {
 
 
             }
-        } else if (state == STATUS.PLAY) {
+        } else if (state == STATE.PLAY) {
 
             while (true) {
 
-                byte[] temp = serial.getPacket();
+                byte[] temp = packetNumbering.getPacket();
                 recordPlayback.playAudio(temp);
 
             }
