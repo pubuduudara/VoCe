@@ -5,22 +5,26 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
 
-public class VoCe extends Thread {
 
-    private static int mode = -1; // 1: 1st peer, 2: 2nd peer, 3: Multicast
-    static int packetSize = 64;
-    private int state = 0; //1: receiving , 2: recording and sending, 3: playback
+public class Unicast extends Thread {
+
+    enum MODE {PEER_1, PEER_2}
+
+    enum STATUS {RECV, REC_SEND, PLAY}
+
+    private static MODE mode;
+    private static int packetSize = 64;
+    private STATUS state;
 
     private static InetAddress server_address = null;
     private static InetAddress clientAddress = null;
     private static int clientPort = -1;
     private static DatagramSocket uplinkSocket = null;
     private static DatagramSocket downlinkSocket = null;
-    private static MulticastSocket multicastSocket = null;
     private static RecordPlayback recordPlayback = new RecordPlayback();
-    private static Serialization serial = new Serialization();
+    private static PacketNumbering serial = new PacketNumbering();
 
-    private VoCe(int state) throws IOException {
+    private Unicast(STATUS state) throws IOException {
         this.state = state;
     }
 
@@ -30,31 +34,22 @@ public class VoCe extends Thread {
 
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("\nSelect the mode:\n1)Private call\n2)Group call\n");
-
+        System.out.println("\n1)Initiate call\n2)Call someone\n");
         int choice = sc.nextInt();
-
-        if (choice == 1) { //Private call
-            System.out.println("1)Initiate call\n2)Call someone\n");
-            choice = sc.nextInt();
-            if (choice == 1) { //Initiate
-                mode = 1;
-            } else if (choice == 2) { // Call someone
-                System.out.println("Enter peer's IP address: ");
-                server_address = InetAddress.getByName(sc.next());
-                mode = 2;
-            }
-        } else if (choice == 2) { // Group call
-            System.out.println("Enter group's multicast IP address: ");
+        if (choice == 1) { //Initiate
+            mode = MODE.PEER_1;
+        } else if (choice == 2) { // Call someone
+            System.out.println("Enter peer's IP address: ");
             server_address = InetAddress.getByName(sc.next());
-            mode = 3;
+            mode = MODE.PEER_2;
+
         } else {
             System.out.println("\nInvalid input");
         }
 
         int server_port = 12121;
 
-        if (mode == 1) {    //1st peer
+        if (mode == MODE.PEER_1) {
 
             try {
 
@@ -67,12 +62,12 @@ public class VoCe extends Thread {
                 //Getting my IP Address
                 InetAddress localHost = InetAddress.getLocalHost();
                 String myIPAddress = "";
-                try{
+                try {
                     URL urlName = new URL("http://bot.whatismyipaddress.com");
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlName.openStream()));
 
                     myIPAddress = bufferedReader.readLine().trim();
-                }catch (Exception e){
+                } catch (Exception e) {
                     myIPAddress = "Can't retrieve my IP address. Please find it using ifconfig";
                 }
 
@@ -102,7 +97,7 @@ public class VoCe extends Thread {
                 e.printStackTrace();
             }
 
-        } else if (mode == 2) {   //2nd peer
+        } else if (mode == MODE.PEER_2) {
 
 
             try {
@@ -134,67 +129,25 @@ public class VoCe extends Thread {
                 e.printStackTrace();
             }
 
-        } else if (mode == 3) { //multicast
-
-            uplinkSocket = new DatagramSocket();
-            clientAddress = server_address;
-            clientPort = 8888;
-            try {
-                //Prepare to join multicast group
-                multicastSocket = new MulticastSocket(8888);
-                multicastSocket.joinGroup(server_address);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
         }
 
-        Thread transmission = new Thread(new VoCe(1)); //transmission thread
-        Thread receive = new Thread(new VoCe(2));      //thread reception thread
-        Thread play = new Thread(new VoCe(3));         //thread playback thread
+        Thread recv = new Thread(new Unicast(STATUS.RECV));
+        Thread rec_send = new Thread(new Unicast(STATUS.REC_SEND));
+        Thread play = new Thread(new Unicast(STATUS.PLAY));
 
-        transmission.start();
-        receive.start();
+        recv.start();
+        rec_send.start();
         play.start();
 
 
     }
 
     public void run() {
-        if (state == 2) { //recording and sending
-            while (true) {
-
-                byte[] data = recordPlayback.captureAudio();
-                byte[] temp_data = serial.serialize(data);    //serialize the packet of audio to send the otherside whith sequence no.
-
-                try {
-
-                    DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, clientAddress, clientPort);
-
-                    uplinkSocket.send(packet);    // Send the packet
-                } catch (Exception e) {
-                    System.out.println("sending error");
-                    e.printStackTrace();
-                    break;
-                }
-
-
-            }
-        } else if (state == 1) { //receiving
+        if (state == STATUS.RECV) {
             while (true) {
                 try {
-                    // Prepare the packet for receive
                     DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
-                    // Wait for a response from the other peer
-
-                    if (mode == 3) { //multicast
-                        multicastSocket.receive(packet);
-                    } else {
-                        downlinkSocket.receive(packet);
-
-                    }
-
+                    downlinkSocket.receive(packet);
                     serial.deserialize(packet.getData());
                 } catch (Exception e) {
                     System.out.println("Receiving error");
@@ -204,14 +157,29 @@ public class VoCe extends Thread {
 
             }
 
-        } else if (state == 3) { //playback
+        } else if (state == STATUS.REC_SEND) {
+            while (true) {
 
+                byte[] data = recordPlayback.captureAudio();
+                byte[] temp_data = serial.serialize(data);
+
+                try {
+                    DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, clientAddress, clientPort);
+                    uplinkSocket.send(packet);
+                } catch (Exception e) {
+                    System.out.println("sending error");
+                    e.printStackTrace();
+                    break;
+                }
+
+
+            }
+        } else if (state == STATUS.PLAY) {
 
             while (true) {
 
                 byte[] temp = serial.getPacket();
                 recordPlayback.playAudio(temp);
-
 
             }
         }
