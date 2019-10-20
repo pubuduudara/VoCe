@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -25,9 +27,7 @@ public class Unicast extends Thread {
     private static RecordPlayback recordPlayback = new RecordPlayback();
     private static PacketNumbering serial = new PacketNumbering();
 
-    private static String usage = "usage:  $java Unicast peer1\nOR\n$java Unicast peer2 <IP address>";
-
-    private Unicast(STATUS state) throws IOException {
+    private Unicast(STATUS state) {
         this.state = state;
     }
 
@@ -35,11 +35,12 @@ public class Unicast extends Thread {
         recordPlayback = new RecordPlayback();
         //System.out.println("Threshold " + Serialization.threshold);
 
+        String usage = "usage:  $java Unicast peer1\nOR\n$java Unicast peer2 <IP address>";
         if (args.length == 1) {
             if (args[0].equals("peer1")) {
                 mode = MODE.PEER_1;
             } else {
-                System.out.println("Invalid format\n"+usage);
+                System.out.println("Invalid format\n"+ usage);
             }
         }else if(args.length == 2){
             if(args[0].equals("peer2")){
@@ -47,12 +48,12 @@ public class Unicast extends Thread {
                     server_address = InetAddress.getByName(args[1]);
                     mode = MODE.PEER_2;
                 }catch (Exception e){
-                    System.out.println("Invalid IP address\n"+usage);
+                    System.out.println("Invalid IP address\n"+ usage);
                 }
 
             }
         }else {
-            System.out.println("Invalid format\n"+usage);
+            System.out.println("Invalid format\n"+ usage);
         }
         Scanner sc = new Scanner(System.in);
 
@@ -66,7 +67,7 @@ public class Unicast extends Thread {
                 DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize); // Prepare the packet for receive
 
                 // Wait for a response from the server
-                System.out.println("Waiting for peer...");
+                System.out.println("\nWaiting for peer...");
 
                 //Getting my IP Address
                 InetAddress localHost = InetAddress.getLocalHost();
@@ -76,12 +77,12 @@ public class Unicast extends Thread {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlName.openStream()));
 
                     myIPAddress = bufferedReader.readLine().trim();
-                    System.out.println("\nYour IP: " + myIPAddress);
+                    System.out.println("Your IP: " + myIPAddress);
                 } catch (Exception e) {
 
                 }
 
-                System.out.println("\nPlease share your IP address with peer2 ");
+                System.out.println("Please share your IP address with peer2 ");
 
                 downlinkSocket.receive(packet);
                 System.out.println("Incoming call... Press Enter to answer");
