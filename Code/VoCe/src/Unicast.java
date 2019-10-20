@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -24,6 +25,8 @@ public class Unicast extends Thread {
     private static RecordPlayback recordPlayback = new RecordPlayback();
     private static PacketNumbering serial = new PacketNumbering();
 
+    private static String usage = "usage:  $java Unicast peer1\nOR\n$java Unicast peer2 <IP address>";
+
     private Unicast(STATUS state) throws IOException {
         this.state = state;
     }
@@ -32,20 +35,25 @@ public class Unicast extends Thread {
         recordPlayback = new RecordPlayback();
         //System.out.println("Threshold " + Serialization.threshold);
 
-        Scanner sc = new Scanner(System.in);
+        if (args.length == 1) {
+            if (args[0].equals("peer1")) {
+                mode = MODE.PEER_1;
+            } else {
+                System.out.println("Invalid format\n"+usage);
+            }
+        }else if(args.length == 2){
+            if(args[0].equals("peer2")){
+                try {
+                    server_address = InetAddress.getByName(args[1]);
+                }catch (Exception e){
+                    System.out.println("Invalid IP address\n"+usage);
+                }
 
-        System.out.println("\n1)Initiate call\n2)Call someone\n");
-        int choice = sc.nextInt();
-        if (choice == 1) { //Initiate
-            mode = MODE.PEER_1;
-        } else if (choice == 2) { // Call someone
-            System.out.println("Enter peer's IP address: ");
-            server_address = InetAddress.getByName(sc.next());
-            mode = MODE.PEER_2;
-
-        } else {
-            System.out.println("\nInvalid input");
+            }
+        }else {
+            System.out.println("Invalid format\n"+usage);
         }
+        Scanner sc = new Scanner(System.in);
 
         int server_port = 12121;
 
@@ -67,11 +75,12 @@ public class Unicast extends Thread {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlName.openStream()));
 
                     myIPAddress = bufferedReader.readLine().trim();
+                    System.out.println("\nYour IP: " + myIPAddress);
                 } catch (Exception e) {
-                    myIPAddress = "Can't retrieve my IP address. Please find it using ifconfig";
+
                 }
 
-                System.out.println("Your IP: " + myIPAddress);
+                System.out.println("\nPlease share your IP address with peer2 ");
 
                 downlinkSocket.receive(packet);
                 System.out.println("Incoming call... Press Enter to answer");
