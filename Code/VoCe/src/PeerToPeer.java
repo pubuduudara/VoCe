@@ -1,33 +1,30 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
 
 
-public class Unicast extends Thread {
+public class PeerToPeer extends Thread {
 
     enum MODE {PEER_1, PEER_2}
 
-    enum STATUS {RECV, REC_SEND, PLAY}
+    enum STATE {RECV, REC_SEND, PLAY}
 
     private static MODE mode = MODE.PEER_1;
     private static int packetSize = 64;
-    private STATUS state;
+    private STATE state;
 
     private static InetAddress server_address = null;
     private static InetAddress clientAddress = null;
     private static int clientPort = -1;
-    private static DatagramSocket uplinkSocket = null;
-    private static DatagramSocket downlinkSocket = null;
+    private static DatagramSocket up_linkSocket = null;
+    private static DatagramSocket down_linkSocket = null;
     private static RecordPlayback recordPlayback = new RecordPlayback();
-    private static PacketNumbering serial = new PacketNumbering();
+    private static PacketNumbering packetNumbering = new PacketNumbering();
 
-    private Unicast(STATUS state) {
+    private PeerToPeer(STATE state) {
         this.state = state;
     }
 
@@ -35,25 +32,25 @@ public class Unicast extends Thread {
         recordPlayback = new RecordPlayback();
         //System.out.println("Threshold " + Serialization.threshold);
 
-        String usage = "usage:  $java Unicast peer1\nOR\n$java Unicast peer2 <IP address>";
+        String usage = "usage:  $java PeerToPeer peer1\nOR\n$java PeerToPeer peer2 <IP address>";
         if (args.length == 1) {
             if (args[0].equals("peer1")) {
                 mode = MODE.PEER_1;
             } else {
-                System.out.println("Invalid format\n"+ usage);
+                System.out.println("Invalid format\n" + usage);
             }
-        }else if(args.length == 2){
-            if(args[0].equals("peer2")){
+        } else if (args.length == 2) {
+            if (args[0].equals("peer2")) {
                 try {
                     server_address = InetAddress.getByName(args[1]);
                     mode = MODE.PEER_2;
-                }catch (Exception e){
-                    System.out.println("Invalid IP address\n"+ usage);
+                } catch (Exception e) {
+                    System.out.println("Invalid IP address\n" + usage);
                 }
 
             }
-        }else {
-            System.out.println("Invalid format\n"+ usage);
+        } else {
+            System.out.println("Invalid format\n" + usage);
         }
         Scanner sc = new Scanner(System.in);
 
@@ -63,16 +60,16 @@ public class Unicast extends Thread {
 
             try {
 
-                downlinkSocket = new DatagramSocket(server_port);
+                down_linkSocket = new DatagramSocket(server_port);
                 DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize); // Prepare the packet for receive
 
                 // Wait for a response from the server
                 System.out.println("\nWaiting for peer...");
-                
+
 
                 System.out.println("Please share your IP address with peer2 ");
 
-                downlinkSocket.receive(packet);
+                down_linkSocket.receive(packet);
                 System.out.println("Incoming call... Press Enter to answer");
                 while (true) {
                     String s = sc.nextLine();
@@ -86,11 +83,11 @@ public class Unicast extends Thread {
 
                 byte[] data = "Client has Answered your call...".getBytes();
 
-                uplinkSocket = new DatagramSocket();
+                up_linkSocket = new DatagramSocket();
 
                 DatagramPacket packet_send = new DatagramPacket(data, data.length, clientAddress, clientPort);
                 Thread.sleep(100);
-                uplinkSocket.send(packet_send);
+                up_linkSocket.send(packet_send);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -101,9 +98,9 @@ public class Unicast extends Thread {
 
             try {
 
-                uplinkSocket = new DatagramSocket();
-                downlinkSocket = new DatagramSocket();
-                int downlinkPort = downlinkSocket.getLocalPort();
+                up_linkSocket = new DatagramSocket();
+                down_linkSocket = new DatagramSocket();
+                int downlinkPort = down_linkSocket.getLocalPort();
 
                 /*Sending the downlinkPort port to other side for ask that side user to send data to this downlinkPort */
                 ByteBuffer b = ByteBuffer.allocate(4);
@@ -114,13 +111,13 @@ public class Unicast extends Thread {
                 clientAddress = server_address;
                 clientPort = server_port;
 
-                uplinkSocket.send(packet);
+                up_linkSocket.send(packet);
 
 
                 packet.setData(new byte[packetSize]);
 
                 System.out.println("Waiting for the peer to answer...");
-                downlinkSocket.receive(packet);
+                down_linkSocket.receive(packet);
                 System.out.println(new String(packet.getData()));
 
 
@@ -130,9 +127,9 @@ public class Unicast extends Thread {
 
         }
 
-        Thread recv = new Thread(new Unicast(STATUS.RECV));
-        Thread rec_send = new Thread(new Unicast(STATUS.REC_SEND));
-        Thread play = new Thread(new Unicast(STATUS.PLAY));
+        Thread recv = new Thread(new PeerToPeer(STATE.RECV));
+        Thread rec_send = new Thread(new PeerToPeer(STATE.REC_SEND));
+        Thread play = new Thread(new PeerToPeer(STATE.PLAY));
 
         recv.start();
         rec_send.start();
@@ -142,12 +139,12 @@ public class Unicast extends Thread {
     }
 
     public void run() {
-        if (state == STATUS.RECV) {
+        if (state == STATE.RECV) {
             while (true) {
                 try {
                     DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
-                    downlinkSocket.receive(packet);
-                    serial.removeNumber(packet.getData());
+                    down_linkSocket.receive(packet);
+                    packetNumbering.removeNumber(packet.getData());
                 } catch (Exception e) {
                     System.out.println("Receiving error");
                     e.printStackTrace();
@@ -155,15 +152,15 @@ public class Unicast extends Thread {
 
             }
 
-        } else if (state == STATUS.REC_SEND) {
+        } else if (state == STATE.REC_SEND) {
             while (true) {
 
                 byte[] data = recordPlayback.captureAudio();
-                byte[] temp_data = serial.addNumbers(data);
+                byte[] temp_data = packetNumbering.addNumbers(data);
 
                 try {
                     DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, clientAddress, clientPort);
-                    uplinkSocket.send(packet);
+                    up_linkSocket.send(packet);
                 } catch (Exception e) {
                     System.out.println("sending error");
                     e.printStackTrace();
@@ -172,11 +169,11 @@ public class Unicast extends Thread {
 
 
             }
-        } else if (state == STATUS.PLAY) {
+        } else if (state == STATE.PLAY) {
 
             while (true) {
 
-                byte[] temp = serial.getPacket();
+                byte[] temp = packetNumbering.getPacket();
                 recordPlayback.playAudio(temp);
 
             }
