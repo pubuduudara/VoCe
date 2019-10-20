@@ -61,7 +61,7 @@ public class Multicast extends Thread {
                     DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
                     // Wait for a response from the other peer
                     multicastSocket.receive(packet);
-                    serial.deserialize(packet.getData());
+                    serial.removeNumber(packet.getData());
 
                 } catch (Exception e) {
                     System.out.println("Receiving error");
@@ -75,7 +75,7 @@ public class Multicast extends Thread {
             while (true) {
 
                 byte[] data = recordPlayback.captureAudio();
-                byte[] temp_data = serial.serialize(data);
+                byte[] temp_data = serial.addNumbers(data);
 
                 try {
 

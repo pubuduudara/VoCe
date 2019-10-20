@@ -15,7 +15,7 @@ public class Unicast extends Thread {
 
     enum STATUS {RECV, REC_SEND, PLAY}
 
-    private static MODE mode;
+    private static MODE mode = MODE.PEER_1;
     private static int packetSize = 64;
     private STATUS state;
 
@@ -57,7 +57,7 @@ public class Unicast extends Thread {
         }
         Scanner sc = new Scanner(System.in);
 
-        int server_port = 12121;
+        int server_port = 12000;
 
         if (mode == MODE.PEER_1) {
 
@@ -68,19 +68,7 @@ public class Unicast extends Thread {
 
                 // Wait for a response from the server
                 System.out.println("\nWaiting for peer...");
-
-                //Getting my IP Address
-                InetAddress localHost = InetAddress.getLocalHost();
-                String myIPAddress = "";
-                try {
-                    URL urlName = new URL("http://bot.whatismyipaddress.com");
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlName.openStream()));
-
-                    myIPAddress = bufferedReader.readLine().trim();
-                    System.out.println("Your IP: " + myIPAddress);
-                } catch (Exception e) {
-
-                }
+                
 
                 System.out.println("Please share your IP address with peer2 ");
 
@@ -159,7 +147,7 @@ public class Unicast extends Thread {
                 try {
                     DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
                     downlinkSocket.receive(packet);
-                    serial.deserialize(packet.getData());
+                    serial.removeNumber(packet.getData());
                 } catch (Exception e) {
                     System.out.println("Receiving error");
                     e.printStackTrace();
@@ -171,7 +159,7 @@ public class Unicast extends Thread {
             while (true) {
 
                 byte[] data = recordPlayback.captureAudio();
-                byte[] temp_data = serial.serialize(data);
+                byte[] temp_data = serial.addNumbers(data);
 
                 try {
                     DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, clientAddress, clientPort);
