@@ -45,6 +45,7 @@ public class Unicast extends Thread {
             if(args[0].equals("peer2")){
                 try {
                     server_address = InetAddress.getByName(args[1]);
+                    mode = MODE.PEER_2;
                 }catch (Exception e){
                     System.out.println("Invalid IP address\n"+usage);
                 }
