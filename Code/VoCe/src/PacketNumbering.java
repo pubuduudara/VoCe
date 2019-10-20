@@ -16,21 +16,21 @@ public class PacketNumbering {
     private static volatile long startTime = System.currentTimeMillis();
 
     //append sequence a number to the packet
-    byte[] serialize(byte[] packet) {
+    byte[] addNumbers(byte[] packet) {
 
-        byte[] copy_packet = Arrays.copyOf(packet, packetSize);
+        byte[] numbered_packet = Arrays.copyOf(packet, packetSize);
         ByteBuffer bytebuffer = ByteBuffer.allocate(4);
         bytebuffer.putInt(send_i);
         byte[] data = bytebuffer.array();
-        System.arraycopy(data, 0, copy_packet, packetSize - 4, 4);
+        System.arraycopy(data, 0, numbered_packet, packetSize - 4, 4);
         no_pkt_sent++;
         send_i++;
-        return copy_packet;
+        return numbered_packet;
 
     }
 
     //remove the sequence number from the packet and check errors
-    void deserialize(byte[] packet) {
+    void removeNumber(byte[] packet) {
 
 
         no_pkt_recv++;
@@ -137,7 +137,7 @@ public class PacketNumbering {
                     b.putInt(i);
                     byte[] data = b.array();
 
-                    byte[] data_serial = s1.serialize(data);
+                    byte[] data_serial = s1.addNumbers(data);
                     DatagramPacket packet = new DatagramPacket(data_serial, data_serial.length, server_address, server_port);
                     System.out.println("sending packet containing int value of" + i);
                     socket.send(packet);
@@ -158,7 +158,7 @@ public class PacketNumbering {
                     socket.receive(packet);
 
 
-                    s1.deserialize(packet.getData());
+                    s1.removeNumber(packet.getData());
                     byte[] temp = s1.getPacket();
 
                     try {
