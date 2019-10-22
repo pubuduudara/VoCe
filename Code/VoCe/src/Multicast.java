@@ -1,28 +1,36 @@
-import java.io.IOException;
-import java.net.*;
-import java.util.Scanner;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+
+/*
+Multicast.java is written to facilitate communication between many-to-many
+Compile:    $javac Multicast.java
+Run:        $java Multicast <multicast IP address>
+
+Multicast IP address range: 224.0.0.0 to 239.255.255.255
+ */
 
 public class Multicast extends Thread {
 
-    enum STATE {RECV, REC_SEND, PLAY}
 
+    enum STATE {RECV, REC_SEND, PLAY} //Holds 3 states of thread
     private STATE state;
-
     private static InetAddress multicastAddress = null;
-    private static int clientPort = -1;
+    private static final int multicastPort = 8888, packetSize = 64;
     private static MulticastSocket multicastSocket = null;
     private static RecordPlayback recordPlayback = new RecordPlayback();
-    private static PacketNumbering packetNumbering = new PacketNumbering();
+    private static PacketNumberingAndData packetNumberingAndData = new PacketNumberingAndData(); //Handles packet numbering and storing data
 
     private Multicast(STATE state) {
         this.state = state;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         recordPlayback = new RecordPlayback();
-        //System.out.println("Threshold " + Serialization.threshold);
 
-        String usage = "usage:  $java Multicast <Multicast IP address>\n";
+
+        //Filter invalid user inputs
+        String usage = "usage:  $java Multicast <Multicast IP address>\nMulticast IP address range: 224.0.0.0 to 239.255.255.255\n";
         if (args.length == 1) {
             try {
                 multicastAddress = InetAddress.getByName(args[0]);
@@ -34,74 +42,69 @@ public class Multicast extends Thread {
             System.out.println("Invalid format\n" + usage);
         }
 
-        clientPort = 8888;
-
+        //Try to create the multicast group
         try {
-            //Prepare to join multicast group
             multicastSocket = new MulticastSocket(8888);
             multicastSocket.joinGroup(multicastAddress);
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(-1);
         }
 
+        //Separate threads to handle Receiving, Recording and Sending, Playback simultaneously
         Thread recv = new Thread(new Multicast(STATE.RECV));
         Thread rec_send = new Thread(new Multicast(STATE.REC_SEND));
         Thread play = new Thread(new Multicast(STATE.PLAY));
 
-        recv.start();
-        rec_send.start();
-        play.start();
+        //Start all 3 threads
+        recv.start(); rec_send.start(); play.start();
 
 
     }
 
     public void run() {
-        if (state == STATE.RECV) { //receiving
+
+        if (state == STATE.RECV) {//Packet receive
             while (true) {
                 try {
-                    // Prepare the packet for receive
-                    int packetSize = 64;
+                    //Receive packets
                     DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
-                    // Wait for a response from the other peer
                     multicastSocket.receive(packet);
-                    packetNumbering.removeNumber(packet.getData());
+
+                    //Once received pass them for packetNumberingAndData handling
+                    packetNumberingAndData.appendPacket(packet.getData());
 
                 } catch (Exception e) {
-                    System.out.println("Receiving error");
+                    System.out.println("Packet receive failed!");
                     e.printStackTrace();
-                    break;
                 }
 
             }
 
-        } else if (state == STATE.REC_SEND) {
+        } else if (state == STATE.REC_SEND) {//Audio recording and Sending
             while (true) {
-
+                //Record audion
                 byte[] data = recordPlayback.captureAudio();
-                byte[] temp_data = packetNumbering.addNumbers(data);
 
+                //Give the packets to do numbering
+                byte[] temp_data = packetNumberingAndData.addNumbers(data);
+
+                //Try to send numbered packets
                 try {
-
-                    DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, multicastAddress, clientPort);
-
+                    DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, multicastAddress, multicastPort);
                     multicastSocket.send(packet);
                 } catch (Exception e) {
-                    System.out.println("sending error");
+                    System.out.println("Packet sending failed!");
                     e.printStackTrace();
-                    break;
                 }
 
-
             }
-        } else if (state == STATE.PLAY) {
+        } else if (state == STATE.PLAY) {//Playback
 
+            //Keep getting received packets from packetNumberingAndData and play them
             while (true) {
-
-                byte[] temp = packetNumbering.getPacket();
+                byte[] temp = packetNumberingAndData.getPacket();
                 recordPlayback.playAudio(temp);
-
             }
         }
     }
