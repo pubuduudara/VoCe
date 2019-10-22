@@ -1,15 +1,6 @@
+import javax.sound.sampled.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.TargetDataLine;
 
 
 class RecordPlayback {
@@ -29,9 +20,9 @@ class RecordPlayback {
     RecordPlayback() {
         try {
 
-            Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();    //get available mixers
+            Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();
             System.out.println("Available mixers:");
-            //System.out.println(Arrays.toString(mixerInfo));
+
             Mixer mixer = null;
             for (int cnt = 0; cnt < mixerInfo.length; cnt++) {
                 System.out.println(cnt + " " + mixerInfo[cnt].getName());
@@ -57,11 +48,8 @@ class RecordPlayback {
             sourceDataLine.open(audioFormat);
             sourceDataLine.start();
 
-            //Setting the maximum volume
             FloatControl control = (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
             control.setValue(control.getMaximum());
-
-            // captureAudio(); //playing the audio
 
         } catch (LineUnavailableException e) {
             e.printStackTrace();
@@ -71,15 +59,15 @@ class RecordPlayback {
     }
 
 
-    byte[] captureAudio() {        //Captures the Audio and return the captured byte packet
+    byte[] captureAudio() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         boolean stopCapture = false;
         try {
             int readCount;
 
-            readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length);  //capture sound into tempBuffer
+            readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length);
             if (readCount > 0) {
-                byteArrayOutputStream.write(tempBuffer, 0, readCount);        //write the recorded sound values to the tempBuffer
+                byteArrayOutputStream.write(tempBuffer, 0, readCount);
 
             }
 
@@ -91,7 +79,7 @@ class RecordPlayback {
         }
     }
 
-    void playAudio(byte[] tempBuffer) {                    //this will playback the given byte Buffer
+    void playAudio(byte[] tempBuffer) {
         sourceDataLine.write(tempBuffer, 0, tempBuffer.length);
     }
 

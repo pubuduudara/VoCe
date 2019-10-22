@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -6,32 +5,35 @@ import java.nio.ByteBuffer;
 import java.util.Scanner;
 
 
+/*
+PeerToPeer.java is written to facilitate communication between one-to-one
+Compile:    $javac PeerToPeer.java
+Run: initiate:   $java PeerToPeer peer1
+     join:       $java PeerToPeer peer2 <peer2 IP address>
+ */
+
 public class PeerToPeer extends Thread {
 
     enum MODE {PEER_1, PEER_2}
-
-    enum STATE {RECV, REC_SEND, PLAY}
-
+    enum STATE {RECV, REC_SEND, PLAY} //Holds 3 states of thread
     private static MODE mode = MODE.PEER_1;
     private static int packetSize = 64;
     private STATE state;
-
-    private static InetAddress server_address = null;
-    private static InetAddress clientAddress = null;
+    private static final int server_port = 12000;
     private static int clientPort = -1;
-    private static DatagramSocket up_linkSocket = null;
-    private static DatagramSocket down_linkSocket = null;
+
+    private static InetAddress server_address = null, clientAddress = null;
+    private static DatagramSocket up_linkSocket = null, down_linkSocket = null;
     private static RecordPlayback recordPlayback = new RecordPlayback();
-    private static PacketNumbering packetNumbering = new PacketNumbering();
+    private static PacketNumberingAndData packetNumberingAndData = new PacketNumberingAndData();
 
     private PeerToPeer(STATE state) {
         this.state = state;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         recordPlayback = new RecordPlayback();
-        //System.out.println("Threshold " + Serialization.threshold);
-
+        //Filter invalid user inputs
         String usage = "usage:  $java PeerToPeer peer1\nOR\n$java PeerToPeer peer2 <IP address>";
         if (args.length == 1) {
             if (args[0].equals("peer1")) {
@@ -54,37 +56,34 @@ public class PeerToPeer extends Thread {
         }
         Scanner sc = new Scanner(System.in);
 
-        int server_port = 12000;
 
+        //Peer 1 mode
         if (mode == MODE.PEER_1) {
-
             try {
-
+                //initiate the socket and wait
                 down_linkSocket = new DatagramSocket(server_port);
-                DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize); // Prepare the packet for receive
+                DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
 
-                // Wait for a response from the server
-                System.out.println("\nWaiting for peer...");
-
-
-                System.out.println("Please share your IP address with peer2 ");
+                System.out.println("\nWaiting for peer2...\nPlease share your IP address with peer 2");
 
                 down_linkSocket.receive(packet);
-                System.out.println("Incoming call... Press Enter to answer");
+                System.out.println("You have a call!\n Press Enter to answer");
+
+                //Wait until hit enter
                 while (true) {
                     String s = sc.nextLine();
                     if (s.isEmpty()) break;
                 }
                 sc.close();
 
+                //Get the client address from the packet
                 clientAddress = packet.getAddress();
                 ByteBuffer wrapped = ByteBuffer.wrap(packet.getData());
                 clientPort = wrapped.getInt();
 
+                //Send a confirmation to the other side
                 byte[] data = "Client has Answered your call...".getBytes();
-
                 up_linkSocket = new DatagramSocket();
-
                 DatagramPacket packet_send = new DatagramPacket(data, data.length, clientAddress, clientPort);
                 Thread.sleep(100);
                 up_linkSocket.send(packet_send);
@@ -93,18 +92,17 @@ public class PeerToPeer extends Thread {
                 e.printStackTrace();
             }
 
-        } else if (mode == MODE.PEER_2) {
-
+        } else if (mode == MODE.PEER_2) { //Peer2 mode
 
             try {
 
                 up_linkSocket = new DatagramSocket();
                 down_linkSocket = new DatagramSocket();
-                int downlinkPort = down_linkSocket.getLocalPort();
+                int down_linkPort = down_linkSocket.getLocalPort();
 
-                /*Sending the downlinkPort port to other side for ask that side user to send data to this downlinkPort */
+                /*Sending the down_linkPort port to other side for ask that side user to send data to this down_linkPort */
                 ByteBuffer b = ByteBuffer.allocate(4);
-                b.putInt(downlinkPort);
+                b.putInt(down_linkPort);
                 byte[] data = b.array();
 
                 DatagramPacket packet = new DatagramPacket(data, data.length, server_address, server_port);
@@ -116,7 +114,7 @@ public class PeerToPeer extends Thread {
 
                 packet.setData(new byte[packetSize]);
 
-                System.out.println("Waiting for the peer to answer...");
+                System.out.println("Wait until for the peer to answer...");
                 down_linkSocket.receive(packet);
                 System.out.println(new String(packet.getData()));
 
@@ -126,14 +124,12 @@ public class PeerToPeer extends Thread {
             }
 
         }
-
+        //Separate threads to handle Receiving, Recording and Sending, Playback simultaneously
         Thread recv = new Thread(new PeerToPeer(STATE.RECV));
         Thread rec_send = new Thread(new PeerToPeer(STATE.REC_SEND));
         Thread play = new Thread(new PeerToPeer(STATE.PLAY));
-
-        recv.start();
-        rec_send.start();
-        play.start();
+        //Start all 3 threads
+        recv.start();rec_send.start();play.start();
 
 
     }
@@ -144,9 +140,8 @@ public class PeerToPeer extends Thread {
                 try {
                     DatagramPacket packet = new DatagramPacket(new byte[packetSize], packetSize);
                     down_linkSocket.receive(packet);
-                    packetNumbering.removeNumber(packet.getData());
+                    packetNumberingAndData.appendPacket(packet.getData());
                 } catch (Exception e) {
-                    System.out.println("Receiving error");
                     e.printStackTrace();
                 }
 
@@ -156,13 +151,12 @@ public class PeerToPeer extends Thread {
             while (true) {
 
                 byte[] data = recordPlayback.captureAudio();
-                byte[] temp_data = packetNumbering.addNumbers(data);
+                byte[] temp_data = packetNumberingAndData.addNumbers(data);
 
                 try {
                     DatagramPacket packet = new DatagramPacket(temp_data, temp_data.length, clientAddress, clientPort);
                     up_linkSocket.send(packet);
                 } catch (Exception e) {
-                    System.out.println("sending error");
                     e.printStackTrace();
 
                 }
@@ -173,7 +167,7 @@ public class PeerToPeer extends Thread {
 
             while (true) {
 
-                byte[] temp = packetNumbering.getPacket();
+                byte[] temp = packetNumberingAndData.getPacket();
                 recordPlayback.playAudio(temp);
 
             }
